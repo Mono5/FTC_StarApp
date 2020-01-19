@@ -25,8 +25,12 @@ public class MecanumAnalogDebugDrive extends OpMode {
     public void start() {}
     @Override
     public void loop() {
+
+        // send continuous power updates to analog input
         wheels.analogControl(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
         wheels.debug();
+
+        // update the debug display
         telemetry.update();
     }
     @ Override

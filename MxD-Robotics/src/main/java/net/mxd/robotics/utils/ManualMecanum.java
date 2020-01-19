@@ -45,7 +45,7 @@ public class ManualMecanum {
         }
 
         // update telemetry to confirm complete motor configuration to runMode and display
-        telemetry.addLine().addData("MecanumControl", "Ready for use");
+        telemetry.addLine().addData("Mecanum Status", "Ready for use");
     }
 
     // add debug module, just in case
