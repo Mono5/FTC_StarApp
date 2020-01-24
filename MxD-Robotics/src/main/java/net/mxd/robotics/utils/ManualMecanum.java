@@ -14,7 +14,7 @@ public class ManualMecanum {
     private DcMotor[] motors = new DcMotor[4];
 
     // adding self-contained telemetry for all modules
-    private Telemetry telemetry = null;
+    private Telemetry telemetry;
 
     // exposing initialization module for runMode
     public void init(HardwareMap hardwareMap, Telemetry oldTelemetry) {
@@ -31,8 +31,8 @@ public class ManualMecanum {
         // setting motor directions
         motors[0].setDirection(DcMotorSimple.Direction.FORWARD);
         motors[1].setDirection(DcMotorSimple.Direction.REVERSE);
-        motors[2].setDirection(DcMotorSimple.Direction.FORWARD);
-        motors[3].setDirection(DcMotorSimple.Direction.REVERSE);
+        motors[2].setDirection(DcMotorSimple.Direction.REVERSE);
+        motors[3].setDirection(DcMotorSimple.Direction.FORWARD);
 
         // setting motor behavior at power level =0
         for (int i = 0; i < 4; i++)
@@ -114,8 +114,8 @@ public class ManualMecanum {
         double[] power = new double[4];
 
         // calculate power for each motor
-        power[0] = x - y + rotation; power[1] = x + y - rotation;
-        power[2] = x + y + rotation; power[3] = x - y - rotation;
+        power[0] = y - x + rotation; power[1] = y + x - rotation;
+        power[2] = y + x + rotation; power[3] = y - x - rotation;
 
         // enforce power limits
         power[0] = Range.clip(power[0], -1, 1); power[1] = Range.clip(power[1], -1, 1);
@@ -125,4 +125,12 @@ public class ManualMecanum {
         motors[0].setPower(power[0]); motors[1].setPower(power[1]);
         motors[2].setPower(power[2]); motors[3].setPower(power[3]);
     }
+
+    public void resetToRTP() {
+        motors[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motors[1].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motors[2].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motors[3].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
 }

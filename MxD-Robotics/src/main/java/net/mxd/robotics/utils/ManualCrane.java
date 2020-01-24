@@ -79,4 +79,6 @@ public class ManualCrane {
                 .addData("Grabber", df.format(servos[1].getPosition()))
                 .addData("Rotation", df.format(servos[0].getPosition()));
     }
+
+    public void craneHeightControl() {}
 }

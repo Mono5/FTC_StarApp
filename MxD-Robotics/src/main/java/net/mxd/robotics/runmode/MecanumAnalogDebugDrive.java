@@ -9,7 +9,7 @@ import net.mxd.robotics.utils.ManualMecanum;
 public class MecanumAnalogDebugDrive extends OpMode {
 
     // get the mecanum interface up
-    private ManualMecanum wheels = null;
+    private ManualMecanum wheels = new ManualMecanum();
 
     @Override
     public void init() {
@@ -27,7 +27,8 @@ public class MecanumAnalogDebugDrive extends OpMode {
     public void loop() {
 
         // send continuous power updates to analog input
-        wheels.analogControl(-gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+        wheels.analogControl(gamepad1.left_stick_x, gamepad1.left_trigger - gamepad1.right_trigger, gamepad1.right_stick_x);
+
         wheels.debug();
 
         // update the debug display
