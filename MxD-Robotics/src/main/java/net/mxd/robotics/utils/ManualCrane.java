@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -19,8 +21,12 @@ public class ManualCrane {
     // crane extender
     private CRServo extender = null;
 
+    ElapsedTime timer = new ElapsedTime();
     // adding self-contained telemetry for all modules
     private Telemetry telemetry = null;
+
+    // externally saved checks
+    private boolean[] craneCheck = new boolean[4];
 
     // exposing initialization module for runMode
     public void init(HardwareMap hardwareMap, Telemetry oldTelemetry) {
@@ -54,8 +60,11 @@ public class ManualCrane {
 
         // TODO: determine servo start positions
         // setting servo start position
-        servos[0].setPosition(0);
-        servos[1].setPosition(0);
+        servos[0].setPosition(0.92); craneCheck[0] = false; craneCheck[2] = true;
+        servos[1].setPosition(0.84); craneCheck[1] = false; craneCheck[3] = false;
+        extender.setPower(0);
+
+        timer.reset();
 
         // update telemetry to confirm configuration to runMode and display
         telemetry.addLine().addData("Crane Status", "Ready for use");
@@ -80,5 +89,71 @@ public class ManualCrane {
                 .addData("Rotation", df.format(servos[0].getPosition()));
     }
 
-    public void craneHeightControl() {}
+    //
+    public void craneHeightControl(double power, boolean trigger, boolean pwrTrigger) {
+
+        // get a power array up
+        int[] powerI = new int[2];
+
+        // calculate position updates
+        powerI[0] = (int)(100 * power);
+        powerI[1] = (int)(-100 * power);
+
+        if (timer.seconds() > 0.2 && pwrTrigger) {
+            if (motors[0].getPower() > 0.5) {
+                motors[0].setPower(0);
+                motors[1].setPower(0);
+            } else {
+                motors[0].setPower(0.8);
+                motors[1].setPower(0.8);
+            }
+            timer.reset();
+        }
+
+        // TODO: Get values for maximum and minimum height
+        // check direction
+        if (trigger) {
+            // check limits
+            if (motors[0].getCurrentPosition() + powerI[0] < 999999 && motors[1].getCurrentPosition() + powerI[1] > -999999) {
+                motors[0].setTargetPosition(motors[0].getCurrentPosition() + powerI[0]);
+                motors[1].setTargetPosition(motors[1].getCurrentPosition() + powerI[1]);
+            }
+        } else {
+            if (motors[0].getCurrentPosition() - powerI[0] > -999999 && motors[1].getCurrentPosition() - powerI[1] < 999999) {
+                motors[0].setTargetPosition(motors[0].getCurrentPosition() - powerI[0]);
+                motors[1].setTargetPosition(motors[1].getCurrentPosition() - powerI[1]);
+            }
+        }
+    }
+
+    // TODO: Get servo positions
+    public void clawSwitches(boolean rotate, boolean grab) {
+
+        // checks to not spam the servo changes
+        if (timer.seconds() > 0.2 && rotate) {
+            if (!craneCheck[3]) {
+                servos[0].setPosition(0.92);
+                craneCheck[3] = true;
+            } else {
+                servos[0].setPosition(0.04);
+                craneCheck[3] = false;
+            }
+            timer.reset();
+        }
+
+        if (timer.seconds() > 0.2 && grab) {
+            if (craneCheck[2]) {
+                servos[1].setPosition(0.43); craneCheck[2] = false;
+            }
+            else {
+                servos[1].setPosition(0.84); craneCheck[2] = true;
+            }
+            timer.reset();
+        }
+    }
+
+    public void extenderCTRL(double power, boolean direction) {
+        if (direction) extender.setPower(Range.clip(power, 0, 1));
+        else extender.setPower(-Range.clip(power, 0, 1));
+    }
 }

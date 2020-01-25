@@ -125,12 +125,4 @@ public class ManualMecanum {
         motors[0].setPower(power[0]); motors[1].setPower(power[1]);
         motors[2].setPower(power[2]); motors[3].setPower(power[3]);
     }
-
-    public void resetToRTP() {
-        motors[0].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motors[1].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motors[2].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motors[3].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    }
-
 }
